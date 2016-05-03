@@ -1,0 +1,61 @@
+token = "NOTION_TOKEN"
+url = "https://app.usenotion.com/api/v1/report"
+
+[jira]
+	url = "https://YOURDOMAIN.atlassian.net"
+	username = "jira_username"
+	password = "jira_password"
+
+[[jira.ingredients]]
+	Name = "Bounces"
+	NotionId = "NOTION_INGREDIENT_ID"
+	Freq = "w"
+	JQL = "project in (JIRA_PROJECTS) AND type in (Bounce) AND createdDate >= '%v' AND createdDate < '%v'"
+
+[[jira.ingredients]]
+	Name = "Escaped Bugs"
+	NotionId = "NOTION_INGREDIENT_ID"
+	Freq = "w"
+	JQL = "project in (JIRA_PROJECTS) AND type in (Bug) AND (labels not in (internal) OR labels is EMPTY) AND status = Done AND resolution = Done AND Resolved >= '%v' AND Resolved < '%v'"
+
+[[jira.ingredients]]
+	Name = "Delieved Bugs"
+	NotionId = "NOTION_INGREDIENT_ID"
+	Freq = "w"
+	JQL = "project in (JIRA_PROJECTS) AND type in (Bug) AND status = Done AND resolution = Done AND Resolved >= '%v' AND Resolved < '%v'"
+
+[[jira.ingredients]]
+	Name = "Delieved Stories"
+	NotionId = "NOTION_INGREDIENT_ID"
+	Freq = "w"
+	JQL = "project in (JIRA_PROJECTS) AND type in (Story) AND status = Done AND resolution = Done AND Resolved >= '%v' AND Resolved < '%v'"
+
+[[jira.ingredients]]
+	Name = "Delieved Chores"
+	NotionId = "NOTION_INGREDIENT_ID"
+	Freq = "w"
+	JQL = "project in (JIRA_PROJECTS) AND type in (Task) AND status = Done AND resolution = Done AND Resolved >= '%v' AND Resolved < '%v'"
+
+[[jira.ingredients]]
+	Name = "Created"
+	NotionId = "NOTION_INGREDIENT_ID"
+	Freq = "w"
+	JQL = "project in (JIRA_PROJECTS) AND createdDate >= '%v' AND createdDate < '%v'"
+
+[[jira.ingredients]]
+	Name = "Closed"
+	NotionId = "NOTION_INGREDIENT_ID"
+	Freq = "w"
+	JQL = "project in (JIRA_PROJECTS) AND status = Done AND Resolved >= '%v' AND Resolved < '%v'"
+
+[[jira.ingredients]]
+	Name = "Defect Found in Development"
+	NotionId = "NOTION_INGREDIENT_ID"
+	Freq = "w"
+	JQL = "project in (JIRA_PROJECTS) AND type in (Bounce) AND createdDate >= '%v' AND createdDate < '%v'"
+
+[[jira.ingredients]]
+	Name = "Defect Found in Production"
+	NotionId = "NOTION_INGREDIENT_ID"
+	Freq = "w"
+	JQL = "project in (JIRA_PROJECTS) AND type in (Bug) AND (labels not in (internal) OR labels is EMPTY) AND status = Done AND resolution = Done AND Resolved >= '%v' AND Resolved < '%v'"
