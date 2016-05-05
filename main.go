@@ -20,14 +20,18 @@ type NotionTools struct {
 var date time.Time
 var tool NotionTools
 
+func help() {
+	fmt.Println("usage: notion-tools -file='CONFIGURATION' [-date='YYYY-MM-DD']")
+	os.Exit(1)
+}
+
 func init() {
-	var cp = flag.String("file", "", "Notion configuration file")
+	var cp = flag.String("file", "", "Notion tools configuration file")
 	var dp = flag.String("date", "", "Reporting date")
 	flag.Parse()
 
 	if *cp == "" {
-		fmt.Println("usage: notion-tools -file='CONFIGURATION' [-date='YYYY-MM-DD']")
-		os.Exit(1)
+		help()
 	}
 
 	if *dp == "" {
@@ -36,15 +40,15 @@ func init() {
 
 	d, err := time.Parse(utils.YYYYMMDD, *dp)
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		fmt.Println("error: ", err)
+		help()
 	}
 	date = d
 
 	_, err = toml.DecodeFile(*cp, &tool)
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(2)
+		fmt.Println("error: ", err)
+		help()
 	}
 }
 
