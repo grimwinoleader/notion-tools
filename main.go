@@ -12,32 +12,36 @@ import (
 	"github.com/notion-tools/utils"
 )
 
+type NotionTools struct {
+	Notion notion.NotionConfig
+	Jira   jira.JiraConfig
+}
+
 var date time.Time
-var cfg notion.NotionConfig
+var tool NotionTools
 
 func init() {
-	var cfgFilePtr = flag.String("file", "", "Notion configuration file")
-	var datePtr = flag.String("date", "", "Reporting date")
+	var cp = flag.String("file", "", "Notion configuration file")
+	var dp = flag.String("date", "", "Reporting date")
 	flag.Parse()
 
-	if *cfgFilePtr == "" {
-		fmt.Println("A Notion configuration file must be specified.\n")
+	if *cp == "" {
 		fmt.Println("usage: notion-tools -file='CONFIGURATION' [-date='YYYY-MM-DD']")
 		os.Exit(1)
 	}
 
-	if *datePtr == "" {
-		*datePtr = time.Now().Format(utils.YYYYMMDD)
+	if *dp == "" {
+		*dp = time.Now().Format(utils.YYYYMMDD)
 	}
 
-	d, err := time.Parse(utils.YYYYMMDD, *datePtr)
+	d, err := time.Parse(utils.YYYYMMDD, *dp)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
 	date = d
 
-	_, err = toml.DecodeFile(*cfgFilePtr, &cfg)
+	_, err = toml.DecodeFile(*cp, &tool)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(2)
@@ -45,11 +49,12 @@ func init() {
 }
 
 func main() {
-	fmt.Println("Reporting period ending ", date.Format(utils.YYYYMMDD))
-
-	for _, ingredient := range cfg.Jira.Ingredients {
-		d, count := jira.Search(cfg.Jira, ingredient, date)
-		notion.Report(cfg, ingredient.NotionID, d, count)
+	for _, ingredient := range tool.Jira.Ingredients {
+		d, count, err := ingredient.Get(tool.Jira, date)
+		if err != nil {
+			fmt.Printf("error with ingredient '%v': %v\n", ingredient.Name, err)
+			continue
+		}
+		tool.Notion.Report(ingredient.NotionID, d, count)
 	}
-
 }

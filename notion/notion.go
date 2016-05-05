@@ -9,14 +9,12 @@ import (
 	"os"
 	"time"
 
-	"github.com/notion-tools/jira"
 	"github.com/notion-tools/utils"
 )
 
 type NotionConfig struct {
 	Token string
 	URL   string
-	Jira  jira.JiraConfig
 }
 
 type NotionResponse struct {
@@ -24,15 +22,15 @@ type NotionResponse struct {
 	Status string   `json:"status"`
 }
 
-func Report(cfg NotionConfig, id string, date time.Time, val int) {
+func (c *NotionConfig) Report(id string, date time.Time, val int) {
 
 	payload := fmt.Sprintf(`{ "ingredient_id":"%v", "date":"%v", "value":%v }`,
 		id, date.Format(utils.YYYYMMDD), val)
 	fmt.Println(payload)
 
 	var jsonStr = []byte(payload)
-	r, _ := http.NewRequest("POST", cfg.URL, bytes.NewBuffer(jsonStr))
-	r.Header.Set("Authorization", cfg.Token)
+	r, _ := http.NewRequest("POST", c.URL, bytes.NewBuffer(jsonStr))
+	r.Header.Set("Authorization", c.Token)
 	r.Header.Set("Content-Type", "application/json")
 
 	client := &http.Client{}
