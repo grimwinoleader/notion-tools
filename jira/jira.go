@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 
 	"github.com/notion-tools/utils"
@@ -32,17 +33,22 @@ type JiraSearchResponse struct {
 	StartAt    int `json:"startAt"`
 }
 
-func (i *JiraIngredient) Get(c JiraConfig, end time.Time) (time.Time, int, error) {
+func (i *JiraIngredient) Get(c JiraConfig, end time.Time) (*time.Time, int, error) {
 
 	var u *url.URL
 	u, _ = url.Parse(c.Url + "/rest/api/latest/search")
 
 	start := end
-	if i.Freq == "w" {
+	jql := i.JQL
+
+	switch i.Freq {
+	case "w":
 		end = utils.StartOfWeek(end)
 		start = end.AddDate(0, 0, -7)
 	}
-	jql := fmt.Sprintf(i.JQL, start.Format(utils.YYYYMMDD), end.Format(utils.YYYYMMDD))
+
+	jql = strings.Replace(jql, "${START}", start.Format(utils.YYYYMMDD), -1)
+	jql = strings.Replace(jql, "${END}", end.Format(utils.YYYYMMDD), -1)
 
 	payload := fmt.Sprintf(`{ "jql":"%v", "startAt":0, "fields":["key"] }`, jql)
 
@@ -54,7 +60,7 @@ func (i *JiraIngredient) Get(c JiraConfig, end time.Time) (time.Time, int, error
 	client := &http.Client{}
 	resp, err := client.Do(r)
 	if err != nil {
-		return end, 0, err
+		return &end, 0, err
 	}
 	defer resp.Body.Close()
 
@@ -63,7 +69,7 @@ func (i *JiraIngredient) Get(c JiraConfig, end time.Time) (time.Time, int, error
 
 	err = json.Unmarshal(body, &jsr)
 	if err != nil {
-		return end, 0, err
+		return &end, 0, err
 	}
-	return end, jsr.Total, nil
+	return &end, jsr.Total, nil
 }

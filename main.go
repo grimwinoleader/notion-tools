@@ -59,6 +59,6 @@ func main() {
 			fmt.Printf("error with ingredient '%v': %v\n", ingredient.Name, err)
 			continue
 		}
-		tool.Notion.Report(ingredient.NotionID, d, count)
+		tool.Notion.Report(ingredient.NotionID, *d, count)
 	}
 }
